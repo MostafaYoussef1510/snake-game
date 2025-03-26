@@ -48,29 +48,42 @@ jobs:
             libncursesw5-dev \
             libffi-dev \
             uuid-dev \
-            aidl
+            android-tools-base
 
-      - name: Install Android build tools
+      - name: Set up Android SDK
         run: |
+          mkdir -p android-sdk
+          export ANDROID_HOME=$PWD/android-sdk
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
           unzip commandlinetools-linux-*_latest.zip
-          mkdir -p android-sdk/cmdline-tools
-          mv cmdline-tools android-sdk/cmdline-tools/latest
-          export ANDROID_HOME=$PWD/android-sdk
-          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "build-tools;33.0.0" "platforms;android-33" "ndk;25.2.9519653"
+          mkdir -p $ANDROID_HOME/cmdline-tools/
+          mv cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+          yes | sdkmanager --licenses || true
+          sdkmanager --install "platform-tools" "build-tools;33.0.0" "platforms;android-33" "ndk;25.2.9519653"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.0" >> $GITHUB_ENV
+
+      - name: Install AIDL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y aidl
+          sudo ln -s /usr/bin/aidl $ANDROID_HOME/build-tools/33.0.0/aidl || true
 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install buildozer cython==0.29.33
+          pip install buildozer==1.5.0 cython==0.29.33
 
       - name: Update buildozer.spec
         run: |
           echo "android.sdk_path = $ANDROID_HOME" >> buildozer.spec
+          echo "android.build_tools_version = 33.0.0" >> buildozer.spec
 
       - name: Build APK
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          PATH: ${{ env.PATH }}
         run: |
           buildozer android debug
 
