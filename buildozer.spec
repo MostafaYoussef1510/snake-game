@@ -22,16 +22,16 @@ orientation = portrait
 fullscreen = 0
 
 # (int) Target Android API, should be as high as possible.
-android.api = 27
+android.api = 33
 
 # (int) Minimum API your APK will support.
 android.minapi = 21
 
 # (str) Android NDK version to use
-android.ndk = 19b
+android.ndk = 25b
 
-# (str) Android SDK version to use
-android.sdk = 20
+# (str) The Android archs to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
+android.archs = armeabi-v7a, arm64-v8a
 
 # (bool) If True, then skip trying to update the Android sdk
 # This can be useful to avoid excess Internet downloads or save time
@@ -43,9 +43,6 @@ android.skip_update = True
 # the default, you will be shown the license when first running
 # buildozer.
 android.accept_sdk_license = True
-
-# (str) The Android arch to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
-android.arch = armeabi-v7a
 
 # (bool) enables Android auto backup feature (Android API >=23)
 android.allow_backup = True
